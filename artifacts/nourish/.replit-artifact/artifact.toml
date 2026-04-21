@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/"
+title = "Nourish"
+version = "1.0.0"
+id = "artifacts/nourish"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/" ]
+localPort = 18596
+
+[services.development]
+run = "pnpm --filter @workspace/nourish run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nourish", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/nourish", "run", "serve" ]
+
+[services.env]
+PORT = "18596"
+BASE_PATH = "/"

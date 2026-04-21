@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "TS-q6PONQAynWG10SfpxX"
+uri = "file://artifacts/nourish/assets/images/icon.png"
+type = "image"
+title = "nourish app icon"
