@@ -45,6 +45,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="add-meal" options={{ presentation: "modal" }} />
+      <Stack.Screen name="scan" options={{ presentation: "modal" }} />
     </Stack>
   );
 }

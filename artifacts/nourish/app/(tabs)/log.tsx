@@ -134,28 +134,54 @@ export default function LogScreen() {
           })}
         </ScrollView>
 
-        <Pressable
-          onPress={() => router.push("/add-meal")}
-          style={({ pressed }) => [
-            styles.customBtn,
-            {
-              backgroundColor: colors.primaryLight,
-              borderRadius: colors.radius,
-              opacity: pressed ? 0.7 : 1,
-            },
-          ]}
-        >
-          <Feather name="edit-3" size={18} color={colors.primaryDark} />
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.customTitle, { color: colors.primaryDark }]}>
-              Add a custom meal
-            </Text>
-            <Text style={[styles.customBody, { color: colors.primaryDark, opacity: 0.8 }]}>
-              Enter your own calories and macros
-            </Text>
-          </View>
-          <Feather name="chevron-right" size={20} color={colors.primaryDark} />
-        </Pressable>
+        <View style={styles.quickRow}>
+          <Pressable
+            onPress={() => router.push("/scan")}
+            style={({ pressed }) => [
+              styles.quickBtn,
+              {
+                backgroundColor: colors.primary,
+                borderRadius: colors.radius,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <View style={[styles.quickIcon, { backgroundColor: "#ffffff30" }]}>
+              <Feather name="maximize" size={18} color="#fff" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.quickTitle, { color: "#fff" }]}>
+                Scan barcode
+              </Text>
+              <Text style={[styles.quickBody, { color: "#ffffffd0" }]}>
+                Point at a packaged food
+              </Text>
+            </View>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push("/add-meal")}
+            style={({ pressed }) => [
+              styles.quickBtn,
+              {
+                backgroundColor: colors.primaryLight,
+                borderRadius: colors.radius,
+                opacity: pressed ? 0.7 : 1,
+              },
+            ]}
+          >
+            <View style={[styles.quickIcon, { backgroundColor: "#ffffff80" }]}>
+              <Feather name="edit-3" size={18} color={colors.primaryDark} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.quickTitle, { color: colors.primaryDark }]}>
+                Custom meal
+              </Text>
+              <Text style={[styles.quickBody, { color: colors.primaryDark, opacity: 0.8 }]}>
+                Enter your own macros
+              </Text>
+            </View>
+          </Pressable>
+        </View>
 
         <View style={{ gap: 10 }}>
           {filtered.length === 0 ? (
@@ -264,14 +290,23 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   tabLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13 },
-  customBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    gap: 12,
+  quickRow: { flexDirection: "row", gap: 10 },
+  quickBtn: {
+    flex: 1,
+    padding: 14,
+    gap: 10,
+    minHeight: 110,
+    justifyContent: "space-between",
   },
-  customTitle: { fontFamily: "Inter_700Bold", fontSize: 15 },
-  customBody: { fontFamily: "Inter_500Medium", fontSize: 13, marginTop: 2 },
+  quickIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  quickTitle: { fontFamily: "Inter_700Bold", fontSize: 15 },
+  quickBody: { fontFamily: "Inter_500Medium", fontSize: 12, marginTop: 2 },
   foodRow: {
     flexDirection: "row",
     alignItems: "center",

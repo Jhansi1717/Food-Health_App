@@ -84,6 +84,15 @@ export default function TodayScreen() {
             </Text>
           </View>
           <Pressable
+            onPress={() => router.push("/scan")}
+            style={({ pressed }) => [
+              styles.fab,
+              { backgroundColor: colors.card, opacity: pressed ? 0.7 : 1 },
+            ]}
+          >
+            <Feather name="maximize" size={18} color={colors.foreground} />
+          </Pressable>
+          <Pressable
             onPress={() => router.push("/(tabs)/log")}
             style={({ pressed }) => [
               styles.fab,
