@@ -45,23 +45,29 @@ export default function Onboarding() {
 
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
+  const [age, setAge] = useState("");
   const [goal, setGoal] = useState<Goal>("healthier");
   const [diet, setDiet] = useState<DietPref>("none");
+
+  const TOTAL_STEPS = 5;
 
   const next = () => {
     if (Platform.OS !== "web") {
       Haptics.selectionAsync().catch(() => {});
     }
-    if (step < 3) setStep(step + 1);
+    if (step < TOTAL_STEPS - 1) setStep(step + 1);
     else finish();
   };
 
   const back = () => setStep((s) => Math.max(0, s - 1));
 
   const finish = () => {
-    const t = targetsForGoal(goal);
+    const ageNum = parseInt(age, 10);
+    const validAge = !isNaN(ageNum) && ageNum >= 5 && ageNum <= 120 ? ageNum : null;
+    const t = targetsForGoal(goal, validAge);
     completeOnboarding({
       name: name.trim(),
+      age: validAge,
       goal,
       diet,
       ...t,
@@ -87,7 +93,7 @@ export default function Onboarding() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.progressRow}>
-            {[0, 1, 2, 3].map((i) => (
+            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
               <View
                 key={i}
                 style={[
@@ -151,6 +157,40 @@ export default function Onboarding() {
           ) : null}
 
           {step === 2 ? (
+            <View style={styles.stepContent}>
+              <Text style={[styles.heading, { color: colors.foreground }]}>
+                How old are you?
+              </Text>
+              <Text style={[styles.body, { color: colors.mutedForeground }]}>
+                Optional — but it lets us tune your calorie target to your metabolism. Skip if you'd rather not say.
+              </Text>
+              <View
+                style={[
+                  styles.inputWrap,
+                  { backgroundColor: colors.card, borderRadius: colors.radius },
+                ]}
+              >
+                <Feather name="calendar" size={18} color={colors.mutedForeground} />
+                <TextInput
+                  value={age}
+                  onChangeText={(t) => setAge(t.replace(/[^0-9]/g, "").slice(0, 3))}
+                  placeholder="e.g. 28"
+                  placeholderTextColor={colors.mutedForeground}
+                  keyboardType="number-pad"
+                  autoFocus
+                  style={[
+                    styles.input,
+                    { color: colors.foreground, fontFamily: "Inter_500Medium" },
+                  ]}
+                />
+                <Text style={[styles.unit, { color: colors.mutedForeground }]}>
+                  years
+                </Text>
+              </View>
+            </View>
+          ) : null}
+
+          {step === 3 ? (
             <View style={styles.stepContent}>
               <Text style={[styles.heading, { color: colors.foreground }]}>
                 What's your goal?
@@ -219,7 +259,7 @@ export default function Onboarding() {
             </View>
           ) : null}
 
-          {step === 3 ? (
+          {step === 4 ? (
             <View style={styles.stepContent}>
               <Text style={[styles.heading, { color: colors.foreground }]}>
                 Any dietary preference?
@@ -307,10 +347,10 @@ export default function Onboarding() {
               ]}
             >
               <Text style={styles.primaryLabel}>
-                {step === 3 ? "Get started" : "Continue"}
+                {step === TOTAL_STEPS - 1 ? "Get started" : step === 2 && !age ? "Skip" : "Continue"}
               </Text>
               <Feather
-                name={step === 3 ? "check" : "arrow-right"}
+                name={step === TOTAL_STEPS - 1 ? "check" : "arrow-right"}
                 size={18}
                 color="#fff"
               />
@@ -373,6 +413,11 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   input: { flex: 1, fontSize: 16, padding: 0 },
+  unit: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 13,
+    marginLeft: 8,
+  },
   optionList: { gap: 10, marginTop: 8 },
   option: {
     flexDirection: "row",

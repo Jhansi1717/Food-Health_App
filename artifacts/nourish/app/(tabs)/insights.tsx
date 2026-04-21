@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { BadgeShelf } from "@/components/BadgeShelf";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SmartSuggestion } from "@/components/SmartSuggestion";
 import { streakDays, useApp, lastNDays } from "@/contexts/AppContext";
@@ -166,6 +167,14 @@ export default function InsightsScreen() {
               </Text>
             </View>
           </View>
+        </View>
+
+        <View style={{ gap: 10 }}>
+          <SectionHeader
+            title="Streak rewards"
+            caption="Earn a badge for every milestone"
+          />
+          <BadgeShelf streak={streak} />
         </View>
 
         <View style={{ gap: 10 }}>

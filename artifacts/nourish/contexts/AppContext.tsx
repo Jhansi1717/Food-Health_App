@@ -9,12 +9,14 @@ import React, {
 } from "react";
 
 import { Food, findFood } from "@/data/foods";
+import { DEFAULT_REMINDERS, ReminderSettings, scheduleReminders } from "@/lib/notifications";
 
 export type Goal = "lose" | "maintain" | "gain" | "healthier";
 export type DietPref = "none" | "vegetarian" | "vegan" | "pescatarian";
 
 export type Profile = {
   name: string;
+  age: number | null;
   goal: Goal;
   calorieTarget: number;
   proteinTarget: number;
@@ -22,6 +24,7 @@ export type Profile = {
   fatTarget: number;
   waterTargetGlasses: number;
   diet: DietPref;
+  reminders: ReminderSettings;
   onboarded: boolean;
   createdAt: string;
 };
@@ -54,6 +57,7 @@ type State = {
 
 const DEFAULT_PROFILE: Profile = {
   name: "",
+  age: null,
   goal: "healthier",
   calorieTarget: 2000,
   proteinTarget: 110,
@@ -61,6 +65,7 @@ const DEFAULT_PROFILE: Profile = {
   fatTarget: 70,
   waterTargetGlasses: 8,
   diet: "none",
+  reminders: DEFAULT_REMINDERS,
   onboarded: false,
   createdAt: new Date().toISOString(),
 };
@@ -94,23 +99,47 @@ function newId() {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
 }
 
-export function targetsForGoal(goal: Goal): {
+export function targetsForGoal(
+  goal: Goal,
+  age: number | null = null,
+): {
   calorieTarget: number;
   proteinTarget: number;
   carbsTarget: number;
   fatTarget: number;
 } {
+  let base: { calorieTarget: number; proteinTarget: number; carbsTarget: number; fatTarget: number };
   switch (goal) {
     case "lose":
-      return { calorieTarget: 1700, proteinTarget: 120, carbsTarget: 170, fatTarget: 60 };
+      base = { calorieTarget: 1700, proteinTarget: 120, carbsTarget: 170, fatTarget: 60 };
+      break;
     case "gain":
-      return { calorieTarget: 2600, proteinTarget: 150, carbsTarget: 320, fatTarget: 85 };
+      base = { calorieTarget: 2600, proteinTarget: 150, carbsTarget: 320, fatTarget: 85 };
+      break;
     case "maintain":
-      return { calorieTarget: 2200, proteinTarget: 110, carbsTarget: 250, fatTarget: 75 };
+      base = { calorieTarget: 2200, proteinTarget: 110, carbsTarget: 250, fatTarget: 75 };
+      break;
     case "healthier":
     default:
-      return { calorieTarget: 2000, proteinTarget: 110, carbsTarget: 230, fatTarget: 70 };
+      base = { calorieTarget: 2000, proteinTarget: 110, carbsTarget: 230, fatTarget: 70 };
   }
+
+  // Tune by age: metabolism slows ~2% per decade after 30, faster needs in teens.
+  if (age != null && age > 0) {
+    let mult = 1;
+    if (age < 18) mult = 1.1;
+    else if (age >= 30 && age < 50) mult = 0.97;
+    else if (age >= 50 && age < 65) mult = 0.93;
+    else if (age >= 65) mult = 0.88;
+    base = {
+      calorieTarget: Math.round((base.calorieTarget * mult) / 50) * 50,
+      proteinTarget: age >= 50 ? base.proteinTarget + 10 : base.proteinTarget,
+      carbsTarget: Math.round((base.carbsTarget * mult) / 10) * 10,
+      fatTarget: Math.round((base.fatTarget * mult) / 5) * 5,
+    };
+  }
+
+  return base;
 }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -142,6 +171,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const state: State = { profile, meals, water };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(state)).catch(() => {});
   }, [ready, profile, meals, water]);
+
+  useEffect(() => {
+    if (!ready) return;
+    scheduleReminders(profile.reminders, profile.name).catch(() => {});
+  }, [
+    ready,
+    profile.name,
+    profile.reminders.enabled,
+    profile.reminders.breakfast,
+    profile.reminders.lunch,
+    profile.reminders.dinner,
+    profile.reminders.water,
+    profile.reminders.breakfastHour,
+    profile.reminders.lunchHour,
+    profile.reminders.dinnerHour,
+  ]);
 
   const todayKey = todayString();
 
